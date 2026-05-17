@@ -27,8 +27,6 @@ await sql`
 `
 console.log('db ready')
 
-const tokens = new Set<string>()
-
 type Note = {
   id: string
   title: string
@@ -47,7 +45,7 @@ function json(data: unknown, init?: ResponseInit): Response {
 function isAuthed(req: Request): boolean {
   const auth = req.headers.get('authorization')
   if (!auth?.startsWith('Bearer ')) return false
-  return tokens.has(auth.slice('Bearer '.length))
+  return auth.slice('Bearer '.length) === PASSWORD
 }
 
 async function fetchAll(): Promise<Note[]> {
@@ -89,9 +87,7 @@ const server = Bun.serve({
       if (pathname === '/api/auth' && req.method === 'POST') {
         const { password } = (await req.json()) as { password?: string }
         if (password !== PASSWORD) return json({ ok: false }, { status: 401 })
-        const token = crypto.randomUUID() + crypto.randomUUID().replace(/-/g, '')
-        tokens.add(token)
-        return json({ ok: true, token })
+        return json({ ok: true, token: PASSWORD })
       }
 
       if (pathname === '/api/notes' && req.method === 'GET') {
