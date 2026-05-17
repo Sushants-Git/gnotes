@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { ensureSchema, fetchAll, isAuthed, sql, type Note } from './_db'
+import { ensureSchema, fetchAll, isAuthed, getSql, type Note } from './_db'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -12,7 +12,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   try {
     await ensureSchema()
-    const body = (req.body ?? {}) as { notes?: Note[]; deletedIds?: string[] }
+    const sql = getSql()
+    const raw = req.body
+    const body = (typeof raw === 'string' ? JSON.parse(raw) : raw ?? {}) as {
+      notes?: Note[]; deletedIds?: string[]
+    }
     const incoming = body.notes ?? []
     const deletedIds = body.deletedIds ?? []
 

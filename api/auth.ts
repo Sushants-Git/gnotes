@@ -10,8 +10,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     res.status(500).json({ error: 'NOTES_PASSWORD not configured' })
     return
   }
-  const { password } = (req.body ?? {}) as { password?: string }
-  if (password !== pw) {
+  const raw = req.body
+  const body = (typeof raw === 'string' ? JSON.parse(raw) : raw ?? {}) as { password?: string }
+  if (body.password !== pw) {
     res.status(401).json({ ok: false })
     return
   }

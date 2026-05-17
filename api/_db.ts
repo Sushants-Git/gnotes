@@ -1,17 +1,22 @@
 import postgres from 'postgres'
 
-const url = process.env.DATABASE_URL
-if (!url) throw new Error('Missing DATABASE_URL')
+type Sql = ReturnType<typeof postgres>
 
-// Reuse the connection across warm invocations.
-const g = globalThis as unknown as { __sql?: ReturnType<typeof postgres> }
-export const sql = g.__sql ?? postgres(url, { prepare: false, max: 1 })
-g.__sql = sql
+const g = globalThis as unknown as { __sql?: Sql }
+
+export function getSql(): Sql {
+  if (g.__sql) return g.__sql
+  const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL
+  if (!url) throw new Error('Missing DATABASE_URL or POSTGRES_URL')
+  g.__sql = postgres(url, { prepare: false, max: 1 })
+  return g.__sql
+}
 
 let initPromise: Promise<void> | null = null
 export function ensureSchema(): Promise<void> {
   if (!initPromise) {
     initPromise = (async () => {
+      const sql = getSql()
       await sql`
         CREATE TABLE IF NOT EXISTS notes (
           id          text   PRIMARY KEY,
@@ -22,7 +27,7 @@ export function ensureSchema(): Promise<void> {
           deleted_at  bigint
         )
       `
-    })()
+    })().catch((e) => { initPromise = null; throw e })
   }
   return initPromise
 }
@@ -36,6 +41,7 @@ export type Note = {
 }
 
 export async function fetchAll(): Promise<Note[]> {
+  const sql = getSql()
   const rows = await sql<{
     id: string; title: string; content: string;
     created_at: string | number; updated_at: string | number;
