@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #1a1a1a;
+  --color-bg-elevated: #222222;
+  --color-border: #2e2e2e;
+  --color-fg: #d4d4d4;
+  --color-fg-muted: #8a8a8a;
+  --color-fg-dim: #5a5a5a;
+  --font-serif: "Newsreader", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button { font-family: inherit; }
+input { font-family: inherit; }
+
+/* Editor */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+  font-family: var(--font-serif);
+}
+
+.ProseMirror h1 { font-size: 1.9rem; font-weight: 600; margin: 1.2rem 0 0.6rem; letter-spacing: -0.01em; color: #ececec; }
+.ProseMirror h2 { font-size: 1.45rem; font-weight: 600; margin: 1.1rem 0 0.5rem; letter-spacing: -0.01em; color: #ececec; }
+.ProseMirror h3 { font-size: 1.18rem; font-weight: 600; margin: 1rem 0 0.4rem; color: #ececec; }
+.ProseMirror p  { margin: 0.6rem 0; }
+.ProseMirror ul, .ProseMirror ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+.ProseMirror ul { list-style: disc; }
+.ProseMirror ol { list-style: decimal; }
+.ProseMirror li { margin: 0.2rem 0; }
+.ProseMirror blockquote {
+  border-left: 2px solid var(--color-border);
+  padding-left: 0.9rem;
+  color: var(--color-fg-muted);
+  margin: 0.8rem 0;
+  font-style: italic;
+}
+.ProseMirror code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: #262626;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+.ProseMirror pre {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: #141414;
+  border: 1px solid var(--color-border);
+  padding: 0.85rem 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.8rem 0;
+  line-height: 1.5;
+}
+.ProseMirror pre code { background: transparent; padding: 0; font-size: 1em; }
+.ProseMirror a { color: #c8c8c8; text-decoration: underline; text-underline-offset: 3px; }
+.ProseMirror hr { border: 0; border-top: 1px solid var(--color-border); margin: 1.5rem 0; }
+.ProseMirror strong { color: #ececec; font-weight: 600; }
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-fg-dim);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror[contenteditable="false"] { cursor: default; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+::-webkit-scrollbar-track { background: transparent; }
