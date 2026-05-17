@@ -7,9 +7,8 @@ export type Note = {
 }
 
 const NOTES_KEY = 'notes:v1'
-const SESSION_KEY = 'notes:session'
-// Change before deploying. Client-side gate only — anyone with the bundle can read it.
-const PASSWORD = 'letmein'
+const DELETED_KEY = 'notes:deleted:v1'
+const TOKEN_KEY = 'notes:token'
 
 export function loadNotes(): Note[] {
   try {
@@ -26,6 +25,18 @@ export function saveNotes(notes: Note[]) {
   localStorage.setItem(NOTES_KEY, JSON.stringify(notes))
 }
 
+export function loadDeleted(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(DELETED_KEY) ?? '[]') as string[]
+  } catch {
+    return []
+  }
+}
+
+export function saveDeleted(ids: string[]) {
+  localStorage.setItem(DELETED_KEY, JSON.stringify(ids))
+}
+
 export function newNote(): Note {
   const now = Date.now()
   return {
@@ -37,18 +48,21 @@ export function newNote(): Note {
   }
 }
 
-export function unlock(password: string): boolean {
-  if (password === PASSWORD) {
-    sessionStorage.setItem(SESSION_KEY, '1')
-    return true
-  }
-  return false
-}
-
 export function isUnlocked(): boolean {
-  return sessionStorage.getItem(SESSION_KEY) === '1'
+  return localStorage.getItem(TOKEN_KEY) != null
 }
 
 export function lock() {
-  sessionStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+// Merge: per-id newer updatedAt wins. Returns merged sorted list.
+export function mergeNotes(a: Note[], b: Note[]): Note[] {
+  const map = new Map<string, Note>()
+  for (const n of a) map.set(n.id, n)
+  for (const n of b) {
+    const existing = map.get(n.id)
+    if (!existing || n.updatedAt > existing.updatedAt) map.set(n.id, n)
+  }
+  return Array.from(map.values()).sort((x, y) => y.updatedAt - x.updatedAt)
 }
